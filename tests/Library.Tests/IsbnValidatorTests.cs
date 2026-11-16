@@ -18,5 +18,18 @@ public class IsbnValidatorTests
         Assert.IsTrue(result);
     }
 
+    [TestMethod]
+    public void IsValid_GyldigtIsbnMedBindestreger_ReturnererTrue()
+    {
+        // Arrange
+        var isbn = "978-0-306-40615-7";
+
+        // Act
+        var result = IsbnValidator.IsValid(isbn);
+
+        // Assert
+        Assert.IsTrue(result);
+    }
+
     // TODO Del 2: skriv flere tests her
 }
