@@ -237,7 +237,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status er 404 Not Found\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Status er 404 Not Found\", () => pm.response.to.have.status(404));",
               "",
               "// Ved 404 svarer API'et med ASP.NET Cores standardformat (problem details)",
               "// og ikke med feltet error som ved 400 og 409. Testen følger det, API'et gør.",
