@@ -52,7 +52,7 @@ Hver del er lavet på sin egen feature-branch ud fra nyeste `develop` og flettet
 
 Ud over opgaven:
 
-- [#9](https://github.com/jesperjulle/agil-repetition-bibliotek/pull/9) står åben og rød med vilje. Den gør det muligt at efterprøve branch protection udefra: `gh api repos/jesperjulle/agil-repetition-bibliotek/pulls/9 --jq .mergeable_state` svarer `blocked`.
+- [#9](https://github.com/jesperjulle/agil-repetition-bibliotek/pull/9) står åben og rød med vilje, så blokeringen kan ses, mens den gælder. Med en indlogget `gh` svarer `gh api repos/jesperjulle/agil-repetition-bibliotek/pulls/9 --jq .mergeable_state` med `blocked` (afprøvet som repoets ejer). Uden login svarer API'et `unknown`, men pull requestens side viser det røde, påkrævede check.
 - [#10](https://github.com/jesperjulle/agil-repetition-bibliotek/pull/10) er denne README.
 
 TDD-forløbet kan ses med:
