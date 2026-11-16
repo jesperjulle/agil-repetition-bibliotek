@@ -1,0 +1,138 @@
+{
+  "info": {
+    "name": "Library API",
+    "description": "API-tests til bibliotek-API'et (del 6). Kør alle fem requests i rækkefølge mod et nystartet API: data ligger kun i hukommelsen, og request 2 og 4 bygger på lånet fra request 1.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Opret lån",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status er 201 Created\", () => pm.response.to.have.status(201));",
+              "",
+              "// Gem kun id'et, når lånet faktisk blev oprettet. Ellers ryddes variablerne,",
+              "// så de næste requests ikke bruger værdier fra en tidligere kørsel.",
+              "if (pm.response.code === 201) {",
+              "    pm.collectionVariables.set(\"loanId\", pm.response.json().id);",
+              "    pm.collectionVariables.set(\"bookIsbn\", pm.response.json().bookIsbn);",
+              "} else {",
+              "    pm.collectionVariables.unset(\"loanId\");",
+              "    pm.collectionVariables.unset(\"bookIsbn\");",
+              "}",
+              "",
+              "pm.test(\"Lånet har de seks felter\", () => {",
+              "    pm.expect(pm.response.json()).to.have.all.keys(\"id\", \"memberId\", \"bookIsbn\", \"loanDate\", \"dueDate\", \"returnedDate\");",
+              "});",
+              "",
+              "pm.test(\"Lånet hører til medlem 1 og den ønskede bog\", () => {",
+              "    const loan = pm.response.json();",
+              "    pm.expect(loan.memberId).to.eql(1);",
+              "    pm.expect(loan.bookIsbn).to.eql(\"9780306406157\");",
+              "});",
+              "",
+              "pm.test(\"Afleveringsfristen er 14 dage efter lånedatoen\", () => {",
+              "    const loan = pm.response.json();",
+              "    const msPerDay = 24 * 60 * 60 * 1000;",
+              "    const days = Math.round((new Date(loan.dueDate) - new Date(loan.loanDate)) / msPerDay);",
+              "    pm.expect(days).to.eql(14);",
+              "});",
+              "",
+              "pm.test(\"Bogen er ikke afleveret endnu\", () => {",
+              "    pm.expect(pm.response.json().returnedDate).to.be.null;",
+              "});",
+              "",
+              "pm.test(\"Location-headeren peger på det nye lån\", () => {",
+              "    const id = pm.response.json().id;",
+              "    pm.expect(pm.response.headers.get(\"Location\")).to.match(new RegExp(\"/api/loans/\" + id + \"$\", \"i\"));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/loans",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "loans"
+          ]
+        },
+        "description": "Glad vej: medlem 1 låner en ledig bog. Gemmer lånets id og ISBN til de næste requests.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"memberId\": 1, \"isbn\": \"9780306406157\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Hent lånet",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status er 200 OK\", () => pm.response.to.have.status(200));",
+              "",
+              "pm.test(\"Det er det lån, der lige blev oprettet\", () => {",
+              "    pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get(\"loanId\")));",
+              "});",
+              "",
+              "pm.test(\"bookIsbn er det samme som i POST-svaret\", () => {",
+              "    pm.expect(pm.response.json().bookIsbn).to.eql(pm.collectionVariables.get(\"bookIsbn\"));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/loans/{{loanId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "loans",
+            "{{loanId}}"
+          ]
+        },
+        "description": "Henter det lån, request 1 oprettede, via den gemte variabel loanId."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "loanId",
+      "value": ""
+    },
+    {
+      "key": "bookIsbn",
+      "value": ""
+    }
+  ]
+}
