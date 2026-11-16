@@ -10,7 +10,7 @@ public class FeeCalculator
 
         if (daysLate > 0)
         {
-            return daysLate * FeePerDay;
+            return Math.Min(daysLate * FeePerDay, 100m);
         }
 
         return 0m;
