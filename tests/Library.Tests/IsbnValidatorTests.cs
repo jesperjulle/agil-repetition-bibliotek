@@ -70,5 +70,16 @@ public class IsbnValidatorTests
         Assert.IsFalse(result);
     }
 
-    // TODO Del 2: skriv flere tests her
+    [TestMethod]
+    public void IsValid_Null_ReturnererFalse()
+    {
+        // Arrange
+        string? isbn = null;
+
+        // Act
+        var result = IsbnValidator.IsValid(isbn);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
 }
