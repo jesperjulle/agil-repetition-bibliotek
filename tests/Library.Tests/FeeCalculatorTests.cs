@@ -58,4 +58,16 @@ public class FeeCalculatorTests
 
         Assert.AreEqual(100m, fee);
     }
+
+    [TestMethod]
+    public void Calculate_ForfaldOmAftenenAfleveretNaesteMorgen_Returnerer5()
+    {
+        // Kun 15 timer mellem de to tidspunkter, men én kalenderdag for sent.
+        var due = new DateTime(2026, 11, 30, 18, 0, 0);
+        var returned = new DateTime(2026, 12, 1, 9, 0, 0);
+
+        decimal fee = _calculator.Calculate(due, returned);
+
+        Assert.AreEqual(5m, fee);
+    }
 }
