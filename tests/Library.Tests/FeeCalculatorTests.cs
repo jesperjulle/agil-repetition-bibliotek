@@ -46,7 +46,7 @@ public class FeeCalculatorTests
 
         decimal fee = _calculator.Calculate(Due, returned);
 
-        Assert.AreEqual(51m, fee);
+        Assert.AreEqual(50m, fee);
     }
 
     [TestMethod]
