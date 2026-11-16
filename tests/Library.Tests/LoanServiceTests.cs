@@ -43,5 +43,21 @@ public class LoanServiceTests
         repo.Verify(r => r.Add(It.IsAny<Loan>()), Times.Never);
     }
 
+    [TestMethod]
+    public void CreateLoan_BogenErAlleredeUdlaant_KasterOgGemmerIkkeLaanet()
+    {
+        // Arrange
+        var repo = new Mock<ILoanRepository>();
+        repo.Setup(r => r.IsBookAvailable(Isbn)).Returns(false);
+        repo.Setup(r => r.CountActiveLoans(1)).Returns(0);
+        var service = new LoanService(repo.Object);
+        var today = new DateTime(2026, 11, 16);
+
+        // Act + Assert
+        Assert.ThrowsException<InvalidOperationException>(
+            () => service.CreateLoan(1, Isbn, today));
+        repo.Verify(r => r.Add(It.IsAny<Loan>()), Times.Never);
+    }
+
     // TODO Del 3: skriv flere tests her
 }
