@@ -18,5 +18,68 @@ public class IsbnValidatorTests
         Assert.IsTrue(result);
     }
 
-    // TODO Del 2: skriv flere tests her
+    [TestMethod]
+    public void IsValid_GyldigtIsbnMedBindestreger_ReturnererTrue()
+    {
+        // Arrange
+        var isbn = "978-0-306-40615-7";
+
+        // Act
+        var result = IsbnValidator.IsValid(isbn);
+
+        // Assert
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public void IsValid_ForkertKontrolciffer_ReturnererFalse()
+    {
+        // Arrange
+        var isbn = "9780306406158";
+
+        // Act
+        var result = IsbnValidator.IsValid(isbn);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void IsValid_TolvCifre_ReturnererFalse()
+    {
+        // Arrange
+        var isbn = "978030640615";
+
+        // Act
+        var result = IsbnValidator.IsValid(isbn);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void IsValid_BogstavITrettendeTegn_ReturnererFalse()
+    {
+        // Arrange
+        var isbn = "978030640615A";
+
+        // Act
+        var result = IsbnValidator.IsValid(isbn);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void IsValid_Null_ReturnererFalse()
+    {
+        // Arrange
+        string? isbn = null;
+
+        // Act
+        var result = IsbnValidator.IsValid(isbn);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
 }
