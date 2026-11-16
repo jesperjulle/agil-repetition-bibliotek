@@ -70,4 +70,24 @@ public class FeeCalculatorTests
 
         Assert.AreEqual(5m, fee);
     }
+
+    [TestMethod]
+    public void Calculate_NittenDageForSent_Returnerer95()
+    {
+        var returned = new DateTime(2026, 12, 19);
+
+        decimal fee = _calculator.Calculate(Due, returned);
+
+        Assert.AreEqual(95m, fee);
+    }
+
+    [TestMethod]
+    public void Calculate_EnogtyveDageForSent_Returnerer100()
+    {
+        var returned = new DateTime(2026, 12, 21);
+
+        decimal fee = _calculator.Calculate(Due, returned);
+
+        Assert.AreEqual(100m, fee);
+    }
 }
