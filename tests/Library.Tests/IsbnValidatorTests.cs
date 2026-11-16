@@ -31,5 +31,18 @@ public class IsbnValidatorTests
         Assert.IsTrue(result);
     }
 
+    [TestMethod]
+    public void IsValid_ForkertKontrolciffer_ReturnererFalse()
+    {
+        // Arrange
+        var isbn = "9780306406158";
+
+        // Act
+        var result = IsbnValidator.IsValid(isbn);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+
     // TODO Del 2: skriv flere tests her
 }
