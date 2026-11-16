@@ -9,7 +9,7 @@ public class FeeCalculator
 
     public decimal Calculate(DateTime due, DateTime returned)
     {
-        int daysLate = (returned - due).Days;
+        int daysLate = (returned.Date - due.Date).Days;
 
         if (daysLate <= 0)
         {
