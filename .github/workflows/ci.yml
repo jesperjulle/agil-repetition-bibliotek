@@ -38,3 +38,27 @@ jobs:
       # Så stopper jobbet her og bliver rødt.
       - name: Unit tests
         run: dotnet test tests/Library.Tests --no-build --configuration Release --logger "console;verbosity=normal"
+
+      # & starter API'et i baggrunden, så de næste steps kan køre, mens det lytter på port 5000.
+      # Uden & ville steppet aldrig blive færdigt, fordi dotnet run ikke stopper af sig selv.
+      - name: Start API'et i baggrunden
+        run: dotnet run --project src/Library.Api --no-build --configuration Release --urls http://localhost:5000 > api.log 2>&1 &
+
+      # Vent, til API'et svarer. curl prøver igen, så længe forbindelsen bliver afvist.
+      # Svaret er 404, fordi lån 1 ikke findes endnu, men et svar betyder, at API'et er oppe.
+      - name: Vent til API'et svarer
+        run: curl --retry 10 --retry-delay 2 --retry-connrefused --max-time 5 --silent --output /dev/null http://localhost:5000/api/loans/1
+
+      # Node.js findes allerede på GitHubs Ubuntu-runnere.
+      - name: Installér Newman
+        run: npm install -g newman
+
+      # Newman returnerer en fejlkode, når en pm.test fejler. Så bliver jobbet rødt.
+      - name: API-tests med Newman
+        run: newman run postman/Library.postman_collection.json -e postman/ci.postman_environment.json
+
+      # Kører kun, hvis et step ovenfor fejlede. Viser API'ets egen log,
+      # så man kan se hvorfor, hvis API'et ikke kom op.
+      - name: Vis API-log ved fejl
+        if: failure()
+        run: cat api.log 2>/dev/null || echo "API'et blev ikke startet"
