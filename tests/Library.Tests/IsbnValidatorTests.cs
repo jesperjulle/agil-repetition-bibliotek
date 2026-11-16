@@ -44,5 +44,18 @@ public class IsbnValidatorTests
         Assert.IsFalse(result);
     }
 
+    [TestMethod]
+    public void IsValid_TolvCifre_ReturnererFalse()
+    {
+        // Arrange
+        var isbn = "978030640615";
+
+        // Act
+        var result = IsbnValidator.IsValid(isbn);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+
     // TODO Del 2: skriv flere tests her
 }
