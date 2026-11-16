@@ -123,6 +123,149 @@
         "description": "Henter det lån, request 1 oprettede, via den gemte variabel loanId."
       },
       "response": []
+    },
+    {
+      "name": "3. Ugyldigt ISBN",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status er 400 Bad Request\", () => pm.response.to.have.status(400));",
+              "",
+              "pm.test(\"Fejlsvaret har feltet error med en tekst\", () => {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body).to.have.property(\"error\");",
+              "    pm.expect(body.error).to.be.a(\"string\").and.not.be.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/loans",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "loans"
+          ]
+        },
+        "description": "Fejlvej: ISBN'et er ikke et gyldigt ISBN-13, så API'et skal afvise med 400.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"memberId\": 1, \"isbn\": \"123\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. Bogen er allerede udlånt",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status er 409 Conflict\", () => pm.response.to.have.status(409));",
+              "",
+              "pm.test(\"Fejlsvaret har feltet error med en tekst\", () => {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body).to.have.property(\"error\");",
+              "    pm.expect(body.error).to.be.a(\"string\").and.not.be.empty;",
+              "});",
+              "",
+              "// 409 bruges også, når medlemmet har 3 lån. Teksten viser, hvilken regel der slog til.",
+              "pm.test(\"Årsagen er, at bogen er udlånt\", () => {",
+              "    pm.expect(pm.response.json().error).to.include(\"udlånt\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/loans",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "loans"
+          ]
+        },
+        "description": "Fejlvej: samme ISBN som i request 1. Bogen er udlånt, så API'et skal svare 409.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"memberId\": 1, \"isbn\": \"9780306406157\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. Lånet findes ikke",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status er 404 Not Found\", () => pm.response.to.have.status(404));",
+              "",
+              "// Ved 404 svarer API'et med ASP.NET Cores standardformat (problem details)",
+              "// og ikke med feltet error som ved 400 og 409. Testen følger det, API'et gør.",
+              "pm.test(\"Fejlsvaret er problem details med status 404\", () => {",
+              "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/problem+json\");",
+              "    pm.expect(pm.response.json().status).to.eql(404);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/loans/99999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "loans",
+            "99999"
+          ]
+        },
+        "description": "Fejlvej: der findes intet lån med id 99999."
+      },
+      "response": []
     }
   ],
   "variable": [
@@ -133,6 +276,20 @@
     {
       "key": "bookIsbn",
       "value": ""
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Kører efter hver request i collectionen.",
+          "pm.test(\"Svartid under 500 ms\", () => {",
+          "    pm.expect(pm.response.responseTime).to.be.below(500);",
+          "});"
+        ]
+      }
     }
   ]
 }
