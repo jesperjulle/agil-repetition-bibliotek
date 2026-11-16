@@ -1,0 +1,40 @@
+name: CI
+
+# Kører ved push til develop og main
+# og ved pull requests, der har develop eller main som mål.
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+# Pipelinen skal kun læse koden.
+permissions:
+  contents: read
+
+jobs:
+  # Jobbets navn er også navnet på status-checket i branch protection.
+  build-and-test:
+    runs-on: ubuntu-latest
+    # Stop jobbet, hvis noget hænger, i stedet for at vente på GitHubs grænse på 6 timer.
+    timeout-minutes: 10
+
+    steps:
+      - name: Hent koden
+        uses: actions/checkout@v7
+
+      - name: Installér .NET 8
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      # dotnet test returnerer en fejlkode, når en test fejler.
+      # Så stopper jobbet her og bliver rødt.
+      - name: Unit tests
+        run: dotnet test tests/Library.Tests --no-build --configuration Release --logger "console;verbosity=normal"
